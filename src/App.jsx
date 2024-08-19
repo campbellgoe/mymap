@@ -1,22 +1,41 @@
 import React, { useState } from 'react'
-import { MapContainer, TileLayer, useMap, Marker, Popup } from 'react-leaflet'
+import { MapContainer, TileLayer, useMap, useMapEvents, Marker, Popup } from 'react-leaflet'
 import './App.css'
 
+function LocationMarker() {
+  const [position, setPosition] = useState(null)
+  const map = useMapEvents({
+    click() {
+      map.locate()
+    },
+    locationfound(e) {
+      setPosition(e.latlng)
+      map.flyTo(e.latlng, map.getZoom())
+    },
+  })
+
+  return position === null ? null : (
+    <Marker position={position}>
+      <Popup>You are here</Popup>
+    </Marker>
+  )
+}
+
 function App(){
-  const [position] = useState([Math.random()*55, Math.random()*55])
-  return (
-    <MapContainer center={position} zoom={13} scrollWheelZoom={false} style={{ minHeight: '100dvh'}}>
+
+return (
+  <MapContainer
+  style={{ height: '100dvh', width: '100%' }}
+    center={{ lat: 51.505, lng: -0.09 }}
+    zoom={13}
+    scrollWheelZoom={false}>
     <TileLayer
       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
     />
-    <Marker position={position}>
-      <Popup>
-        A pretty CSS3 popup. <br /> Easily customizable.
-      </Popup>
-    </Marker>
+    <LocationMarker />
   </MapContainer>
-  )
+)
 }
 
 export default App
